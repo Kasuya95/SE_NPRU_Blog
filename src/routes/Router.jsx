@@ -1,14 +1,14 @@
-import React from 'react'
-import { createBrowserRouter } from 'react-router'
-import Create from "../pages/Create"
-import Edit from "../pages/Edit"
+import React from "react";
+import { createBrowserRouter } from "react-router";
+import Create from "../pages/Create";
+import Edit from "../pages/Edit";
 import Register from "../pages/Register";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Post from "../pages/Post";
 
 const router = createBrowserRouter([
-    {
+  {
     path: "/",
     element: <Home />,
   },
@@ -29,10 +29,9 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/post/:id",
+    path: "/posts/:id",
     element: <Post />,
-  }
-]  )
+  },
+]);
 
-
-export default router
+export default router;

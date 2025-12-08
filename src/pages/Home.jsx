@@ -1,36 +1,22 @@
 import React from "react";
-
-const posts = [
-  {
-    id: 1,
-    title:
-      "ซีอีโอรักษาการณ์ Intel บอก ซีอีโอคนใหม่ต้องมีพื้นฐานในกระบวนการผลิตชิป",
-    summary:
-      "หลังจากอินเทลประกาศไล่ลีน่ากลับเข้ามาช่วยซีอีโอ Pat Gelsinger ลาออกตำแหน่ง ประเด็นมีว่าเขามีท่าทีว่าซีอีโอใหม่ควรเป็นคนที่เข้าใจการผลิตชิป",
-    image:
-      "https://images.unsplash.com/photo-1580722434936-3cfdbb5c153a?auto=format&fit=crop&w=1200&q=80",
-    author: "wuth42",
-    date: "05 December 2024 - 23:26",
-  },
-  {
-    id: 2,
-    title:
-      "KBTG วางเป้าโตด้วย Agentic AI ในปี 2025 ทำงานร่วมกับ AI เหมือนเป็นคู่อาวุโส",
-    summary:
-      "ในเวทีงานเสวนา AI นี้สำนักเทคโนโลยีใหม่กสิกรบอกว่า Agentic AI เป็นตัวเปลี่ยนเกมสำคัญในปีหน้า ช่วยเพิ่มความสามารถในการทำงานร่วมกับมนุษย์ได้ดีขึ้น",
-    image:
-      "https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&w=1200&q=80",
-    author: "wuth42",
-    date: "05 December 2024 - 21:11",
-  },
-];
+import { useNavigate } from "react-router";
+import { posts } from "../data/post";
 
 const Home = () => {
+  const navigate = useNavigate();
+
+  const handleCardClick = (postId) => {
+    navigate(`/posts/${postId}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-600 to-purple-600 p-6 md:p-10">
       <div className="max-w-5xl mx-auto space-y-10">
         {/** ░░ CARD 1 ░░ แบบรูปภาพซ้าย / ข้อความขวา */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row">
+        <div
+          onClick={() => handleCardClick(posts[0].id)}
+          className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row cursor-pointer hover:shadow-xl transition-shadow"
+        >
           <img
             src={posts[0].image}
             className="w-full md:w-1/2 h-64 object-cover"
@@ -47,7 +33,10 @@ const Home = () => {
         </div>
 
         {/** ░░ CARD 2 ░░ แบบข้อความซ้าย / รูปภาพขวา */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row-reverse">
+        <div
+          onClick={() => handleCardClick(posts[1].id)}
+          className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row-reverse cursor-pointer hover:shadow-xl transition-shadow"
+        >
           <img
             src={posts[1].image}
             className="w-full md:w-1/2 h-64 object-cover"
