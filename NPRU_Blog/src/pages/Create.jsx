@@ -29,6 +29,7 @@ const Create = () => {
         </label>
         <input
           type="text"
+          name="title"
           className="
             w-full px-4 py-3 
             border border-gray-300 
@@ -45,6 +46,7 @@ const Create = () => {
         </label>
         <input
           type="text"
+          name="summary"
           className="
             w-full px-4 py-3 
             border border-gray-300 
@@ -71,6 +73,7 @@ const Create = () => {
         </label>
         <input
           type="file"
+          name="image"
           className="
             w-full px-4 py-2 
             border border-gray-300 

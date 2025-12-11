@@ -65,7 +65,7 @@ const Register = () => {
             />
           </div>
 
-          <button className="btn btn-primary w-full mt-2">Register</button>
+          <button type="submit" className="btn btn-primary w-full mt-2">Register</button>
         </form>
       </div>
     </div>
