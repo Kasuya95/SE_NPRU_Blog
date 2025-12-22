@@ -1,13 +1,59 @@
 import { useState } from "react";
 
-const Login = () => {
-  const [user, setUser] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+
+
+const Login = () => {
+  const [user, setUser] = useState({
+    username: "",
+    password: "",
+  });
+
+  const navigate = useNavigate();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUser((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ user, password });
-    // ใส่ logic login ที่นี่
+    if (!user.username || !user.password) {
+      Swal.fire({
+        icon: "error",
+        title: "กรอกข้อมูลไม่ครบ",
+        text: "กรุณากรอก username และ password",
+        confirmButtonText: "ตกลง",
+        allowOutsideClick: false,
+      });
+      return;
+    }
+
+    try {
+      const res = await authService.login(user.username, user.password);
+
+      if (res.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: "ล็อคอินสำเร็จ",
+          text: res.data.message || "คุณได้ล็อคอินเรียบร้อยแล้ว",
+          allowOutsideClick: false,
+        }).then(() => {
+          navigate("/");
+        });
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text:
+          err.response?.data?.message || err.message || "ไม่สามารถล็อคอินได้",
+        confirmButtonText: "ปิด",
+        allowOutsideClick: false,
+      });
+    }
   };
 
   return (
@@ -22,10 +68,11 @@ const Login = () => {
             </label>
             <input
               type="text"
+              name="user"
               placeholder="Enter your username"
               className="input input-bordered"
-              value={user}
-              onChange={(e) => setUser(e.target.value)}
+              value={user.username}
+              onChange={handleChange}
               required
             />
           </div>
@@ -36,15 +83,19 @@ const Login = () => {
             </label>
             <input
               type="password"
+              name="password"
               placeholder="Enter your password"
               className="input input-bordered"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={user.password}
+              onChange={handleChange}
               required
             />
           </div>
 
-          <button className="btn btn-primary w-full mt-2">Login</button>
+         
+
+          
+          
         </form>
       </div>
     </div>
