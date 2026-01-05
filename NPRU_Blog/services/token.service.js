@@ -1,36 +1,44 @@
 import { Cookies } from "react-cookie";
-const cookies = new Cookies();
+const cookie = new Cookies();
 
 const getAccessToken = () => {
   const user = getUser();
   return user?.accessToken;
 };
+
 const getUser = () => {
-  const user = cookies.get("user");
+  const user = cookie.get("user");
   return user;
 };
 
 const removeUser = () => {
-  cookies.remove("user", { path: "/" });
+  cookie.remove("user", { path: "/" });
 };
 
 const setUser = (user) => {
-  // store object directly and set expiry to 1 day (milliseconds)
-  cookies.set("user", JSON.stringify({
-    id: user.id,
-    username: user.username,
-    accessToken: user.accessToken,
-  }), {
-    path: "/",
-    expires: new Date(Date.now() + 86400 * 1000),
-  });
+  if (user) {
+    cookie.set(
+      "user",
+      JSON.stringify({
+        id: user?.id,
+        username: user?.username,
+        accessToken: user?.accessToken,
+      }),
+      {
+        path: "/",
+        expires: new Date(Date.now() + 86400), // 24*60*60 = 1 day
+      }
+    );
+  } else {
+    removeUser();
+  }
 };
 
-const tokenService = {
+const TokenService = {
   getAccessToken,
   getUser,
-  removeUser,
   setUser,
+  removeUser,
 };
 
-export default tokenService;
+export default TokenService;

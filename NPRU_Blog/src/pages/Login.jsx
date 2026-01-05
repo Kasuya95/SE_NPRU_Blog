@@ -1,105 +1,93 @@
-import { useState } from "react";
-
-
-
+import { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router";
+import AuthService from "../../services/auth.service";
+import Swal from "sweetalert2";
+import { UserContext } from "../../context/UserContext";
 
 const Login = () => {
   const [user, setUser] = useState({
     username: "",
     password: "",
   });
-
+  const { logIn, userInfo } = useContext(UserContext);
   const navigate = useNavigate();
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUser((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  useEffect(() => {
+    if (userInfo) {
+      navigate("/");
+    }
+  }, [userInfo, navigate]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setUser((user) => ({ ...user, [name]: value }));
+  };
+  const handleSubmit = async () => {
     if (!user.username || !user.password) {
       Swal.fire({
+        title: "Error",
+        text: "Username or Password cannot be empty!",
         icon: "error",
-        title: "กรอกข้อมูลไม่ครบ",
-        text: "กรุณากรอก username และ password",
-        confirmButtonText: "ตกลง",
-        allowOutsideClick: false,
       });
-      return;
-    }
-
-    try {
-      const res = await authService.login(user.username, user.password);
-
-      if (res.status === 200) {
+    } else {
+      const response = await AuthService.login(user.username, user.password);
+      // console.log(response);
+      if (response?.status === 200) {
         Swal.fire({
+          title: "Success",
+          text: response?.data?.message,
           icon: "success",
-          title: "ล็อคอินสำเร็จ",
-          text: res.data.message || "คุณได้ล็อคอินเรียบร้อยแล้ว",
-          allowOutsideClick: false,
         }).then(() => {
+          logIn({
+            id: response.data.id,
+            username: response.data.username,
+            accessToken: response.data.accessToken,
+          });
           navigate("/");
         });
       }
-    } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด",
-        text:
-          err.response?.data?.message || err.message || "ไม่สามารถล็อคอินได้",
-        confirmButtonText: "ปิด",
-        allowOutsideClick: false,
-      });
     }
   };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200">
-      <div className="card w-96 bg-base-100 shadow-xl p-6">
-        <h2 className="text-2xl font-bold text-center mb-4">Login</h2>
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="card bg-base-100 w-96 shadow-sm">
+      <div className="card-body space-y-2">
+        <h2 className="card-title justify-center">Login</h2>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Username</span>
-            </label>
-            <input
-              type="text"
-              name="user"
-              placeholder="Enter your username"
-              className="input input-bordered"
-              value={user.username}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <label className="input input-bordered flex items-center gap-2">
+          Username
+          <input
+            type="text"
+            className="grow"
+            placeholder="username"
+            name="username"
+            onChange={handleChange}
+            value={user.username}
+          />
+        </label>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Password</span>
-            </label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              className="input input-bordered"
-              value={user.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <label className="input input-bordered flex items-center gap-2">
+          Password
+          <input
+            type="password"
+            className="grow"
+            placeholder="*****"
+            name="password"
+            value={user.password}
+            onChange={handleChange}
+          />
+        </label>
 
-         
-
-          
-          
-        </form>
+        <button
+          className="btn btn-soft btn-success w-full"
+          onClick={handleSubmit}
+        >
+          Login
+        </button>
       </div>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default Login;
