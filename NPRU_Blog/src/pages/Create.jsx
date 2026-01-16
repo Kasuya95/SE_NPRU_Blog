@@ -10,11 +10,11 @@ const Create = () => {
 
   const [post, setPost] = useState({
     title: "",
-    author: "",
     summary: "",
     content: "",
-    cover: "",
   });
+
+  const [file, setFile] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,20 +28,34 @@ const Create = () => {
   const resetForm = () => {
     setPost({
       title: "",
-      author: "",
       summary: "",
       content: "",
-      cover: "",
     });
+    setFile(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const res = await PostService.createPost(post);
+    if (!file) {
+      Swal.fire({
+        title: "Error",
+        text: "Please select a cover image",
+        icon: "warning",
+      });
+      return;
+    }
 
-      if (res.status === 201 || res.status === 200) {
+    try {
+      const formData = new FormData();
+      formData.append("title", post.title);
+      formData.append("summary", post.summary);
+      formData.append("content", post.content);
+      formData.append("cover", file); // 👈 สำคัญ
+
+      const res = await PostService.createPost(formData);
+
+      if (res.status === 200 || res.status === 201) {
         await Swal.fire({
           title: "Add new post",
           text: "Post created successfully!",
@@ -59,6 +73,7 @@ const Create = () => {
       console.error("Create post error:", error);
     }
   };
+console.log("file =", file);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-base-200">
@@ -73,22 +88,21 @@ const Create = () => {
             >
               {/* LEFT */}
               <div className="md:col-span-1">
-                <label className="label font-semibold">Cover Image URL</label>
+                <label className="label font-semibold">Cover Image</label>
                 <input
-                  type="text"
-                  name="cover"
-                  value={post.cover}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setFile(e.target.files[0])}
+                  className="file-input file-input-bordered w-full"
                 />
 
-                <img
-                  src={
-                    post.cover ||
-                    "https://via.placeholder.com/300x200?text=Preview"
-                  }
-                  className="mt-4 rounded border h-56 w-full object-contain"
-                />
+                {file && (
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt="preview"
+                    className="mt-4 rounded border h-56 w-full object-contain"
+                  />
+                )}
               </div>
 
               {/* RIGHT */}
@@ -103,21 +117,13 @@ const Create = () => {
                   required
                 />
 
-                <input
-                  type="text"
-                  name="author"
-                  value={post.author}
-                  onChange={handleChange}
-                  placeholder="Author"
-                  className="input input-bordered w-full"
-                />
-
                 <textarea
                   name="summary"
                   value={post.summary}
                   onChange={handleChange}
                   placeholder="Summary"
                   className="textarea textarea-bordered w-full"
+                  required
                 />
 
                 <Editor
@@ -146,5 +152,6 @@ const Create = () => {
     </div>
   );
 };
+
 
 export default Create;

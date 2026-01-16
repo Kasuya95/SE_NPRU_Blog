@@ -1,23 +1,25 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router";
+import { useState, useEffect, useContext } from "react";
+import { useParams, useNavigate } from "react-router";
 import Swal from "sweetalert2";
-import { useContext } from "react";
 import { UserContext } from "../../context/UserContext";
 import PostService from "../../services/post.service";
 
 const PostDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { userInfo } = useContext(UserContext);
 
   const [post, setPost] = useState({
-    id: "",
-    tile: "",
+    title: "",
+    summary: "",
+    content: "",
+    cover: "",
     createdAt: "",
     author: {},
-    content: "",
   });
+
   useEffect(() => {
-    const fectchPost = async () => {
+    const fetchPost = async () => {
       try {
         const response = await PostService.getById(id);
         if (response.status === 200) {
@@ -31,48 +33,99 @@ const PostDetail = () => {
         });
       }
     };
-    fectchPost();
+    fetchPost();
   }, [id]);
 
   const handleDelete = async () => {
-    const isSubmitted = window.confirm("Please Confirm To Delete Your Book!");
-    if (!isSubmitted) return;
+    const result = await Swal.fire({
+      title: "Delete post?",
+      text: "This action cannot be undone",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       const response = await PostService.deletePost(post._id);
       if (response.status === 200) {
-        alert("Post deleted successfully!");
-        window.location.reload();
+        Swal.fire("Deleted!", "Post deleted successfully", "success");
+        navigate("/");
       }
     } catch (error) {
-      console.log(error);
+      Swal.fire(
+        "Error",
+        error?.response?.data?.message || error.message,
+        "error"
+      );
     }
   };
+
   return (
-    <div className="post-page min-h-full min-w-full items-center justify-center p-4 pt-20">
-      <div className="bg-white p-8 rounded-b-lg shadow-lg max-4xl w-full">
-        <h1 className="text-3xl font-bold mb-4 text-grey-800">{post?.title}</h1>
-        <div className="text-grey-600 mb-4 text-center">
-          <time className="block mb-2">{post?.createdAt}</time>
-          <div className="author mb-2">
-            By{" "}
-            <span className="text-blue-500">
-              <a href={`/author/${post?.author?._id}`}>
-                @{post?.author?.username}
-              </a>
-            </span>
-          </div>
-          {userInfo?.id === post?.author?._id && (
-            <div className="edit-row mb-4 text-center flex items-center justify-center gap-2">
-              <a className="btn btn-warning" href={`/edit/${post?._id}`}>
-                Edit
-              </a>
-              <a className="btn btn-error" onClick={handleDelete}>
-                Delete
+    <div className="min-h-screen bg-base-200 pt-24 px-4">
+      <div className="max-w-4xl mx-auto bg-base-100 shadow-xl rounded-lg overflow-hidden">
+        {/* Cover */}
+        {post.cover && (
+          <img
+            src={post.cover}
+            alt="cover"
+            className="w-full h-80 object-cover"
+          />
+        )}
+
+        <div className="p-8">
+          {/* Title */}
+          <h1 className="text-4xl font-bold mb-4 text-center">{post.title}</h1>
+
+          {/* Meta */}
+          <div className="text-center text-gray-500 mb-6 space-y-1">
+            <time className="block">
+              {new Date(post.createdAt).toLocaleDateString("th-TH", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </time>
+
+            <div>
+              By{" "}
+              <a
+                
+                className="text-primary font-semibold"
+              >
+                @{post.author?.username}
               </a>
             </div>
+
+            {userInfo?.id === post.author?._id && (
+              <div className="flex justify-center gap-3 mt-4">
+                <button
+                  className="btn btn-warning btn-sm"
+                  onClick={() => navigate(`/edit/${post._id}`)}
+                >
+                  Edit
+                </button>
+                <button className="btn btn-error btn-sm" onClick={handleDelete}>
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Summary */}
+          {post.summary && (
+            <p className="text-lg text-center text-gray-600 mb-8 italic">
+              {post.summary}
+            </p>
           )}
+
+          {/* Content */}
+          <div className="prose max-w-none">
+            <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          </div>
         </div>
-        <div className="content text-grey-700">{post?.content}</div>
       </div>
     </div>
   );

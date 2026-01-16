@@ -1,25 +1,30 @@
 const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
-const mongoose = require("mongoose");
-const userRouter = require("./routers/user.router");
-const postRouter = require("./routers/post.router");
-
-
 const app = express();
-const PORT = process.env.PORT;
+const mongoose = require("mongoose");
+const multer = require("multer");
+const PORT = 5000 || process.env.PORT;
 const BASE_URL = process.env.BASE_URL;
 const DB_URL = process.env.DB_URL;
 
-app.use(cors({ origin: BASE_URL, credentials: true }));
+const userRouter = require("./routers/user.router");
+const postRouter = require("./routers/post.router");
+
+app.use(
+  cors({
+    origin: BASE_URL,
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.get("/", (req, res) => {
-  res.send("<h1>Welcome to SE NPRU Blog Restful API</h1>");
-});
+
+// Don't use global multer middleware - let routers handle it with their own multer config
 
 if (!DB_URL) {
-  console.error("DB_URL is missing. Please set it in your .env file");
+  console.error("DB_URL is missing. Please set it in your .enf file");
 } else {
   mongoose
     .connect(DB_URL)
@@ -31,9 +36,7 @@ if (!DB_URL) {
     });
 }
 
-//use Router
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/post", postRouter);
-app.listen(PORT, () => {
-  console.log("Server is running on http://localhost:" + PORT);
-});
+
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

@@ -1,27 +1,26 @@
 const express = require("express");
 const router = express.Router();
-const postController = require("../controllers/post.controller");
-const authJwt = require("../middlewares/authJWT.middleware");
+const { upload, uploadToFirebase } = require("../middlewares/file.middleware");
+
 const {
-  upload,
-  uploadFileToFirebase,
-} = require("../middlewares/file.middleware");
+  createPost,
+  getAll,
+  getById,
+  getByAuthorId,
+  updateById,
+  deleteById,
+  patchById,
+} = require("../controllers/post.controller");
 
-//http://localhost:5000/api/v1/post
-router.post("", authJwt.verifyToken,upload, uploadFileToFirebase, postController.createPost);
+const { verifyToken } = require("../middlewares/authJWT.middleware");
 
-//http://localhost:5000/api/v1/post
-router.get("", postController.getPosts);
+// http://localhost:5000/api/v1/post
+router.post("/", verifyToken, upload, uploadToFirebase, createPost);
+router.get("/", getAll);
+router.get("/:id", getById);
+router.get("/author/:id", getByAuthorId);
+router.put("/:id", verifyToken, upload, uploadToFirebase, updateById);
+router.patch("/:id", verifyToken, patchById);
+router.delete("/:id", verifyToken, deleteById);
 
-//http://localhost:5000/api/v1/post/1
-router.get("/:id", postController.getById);
-
-//http://localhost:5000/api/v1/post/author/1
-router.get("/author/:id", postController.getByAuthorId);
-
-//http://localhost:5000/api/v1/post/1
-router.put("/:id", authJwt.verifyToken, postController.upDatePost);
-
-//http://localhost:5000/api/v1/post/1
-router.delete("/:id", authJwt.verifyToken, postController.deletePost);
 module.exports = router;

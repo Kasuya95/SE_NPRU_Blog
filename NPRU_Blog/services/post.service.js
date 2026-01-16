@@ -11,7 +11,13 @@ const getByAuthorId = async (id) => {
   return await api.get(`${API_URL}/author/${id}`);
 };
 const createPost = async (post) => {
-  return await api.post(API_URL, post);
+  // When sending FormData, set Content-Type to undefined
+  // This allows browser/axios to automatically set it with correct boundary
+  return await api.post(API_URL, post, {
+    headers: {
+      "Content-Type": undefined,
+    },
+  });
 };
 const updatePost = async (id, post) => {
   return await api.put(`${API_URL}/${id}`, post);
